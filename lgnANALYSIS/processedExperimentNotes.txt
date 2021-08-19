@@ -1,0 +1,62 @@
+EXPERIMENT NOTES
+----------------
+LGN02 MALE
+
+LGN02 uif 1 
+53 rois (1378 Pairs) for uif 1
+x=y=0; z = 132, 5.7x
+000 003 randorisf OK
+000 004 retinotopy_hough OK
+
+
+LGN02 uif 2
+39 rois (741 Pairs) for uif 2
+x=y=0; z = 225, 5.7x
+001 000 retinotopy_hough OK
+001 001 randorisf OK
+
+uif 3
+19 rois (171 Pairs) for uif 3
+LGN02 x=y=1; z = 254; 4.8x
+003 000 localizer_hough OK
+003 001 randorisf OK
+
+---------------
+LGN03 uif 4 
+16 rois (120 Pairs) for uif 4     
+X=Y=1, Z = 221 | 5.7X
+001 000 randorisf
+001 001 retinotopy_hough
+
+LGN03 uif 5
+14 rois (91 Pairs) for uif 5
+X=Y=1, Z = 295 | 5.7X
+001 002 randorisf
+001 003 retinotopy_hough
+
+LGN03 uif 6
+0 rois (0 Pairs) for uif 6
+X=Y=2, Z = 180 | 5.7X
+002 000 randorisf 
+002 001 retinotopy_hough
+
+
+LGN03 uif 7
+3 rois (3 Pairs) for uif 7
+
+---------------
+lgn04
+
+uif8 5 rois (10 Pairs) for uif 8
+x=y=0 z = 270
+001 000 retinotopy_hough  horrible alignment/segment mask
+001 001 randorisf
+
+
+
+------------
+LGN06 FEMALE
+0 rois (0 Pairs) for uif 9
+XY = 3, Z = 154
+003 000 rethough OK
+003 001 randorisf OK
