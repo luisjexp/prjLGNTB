@@ -3,7 +3,6 @@ uifID = 1;
 ImAlign = UIFCAT.alignImage{uifID};
 ImSegment = UIFCAT.segMask{uifID}>0;
 
-
 clf
 imagesc(ImAlign); axis equal; axis off 
 imcontrast
@@ -35,6 +34,7 @@ roiPropHistogram(R, 'sfPeak')
 clf
 cst = ROISCAT.signif_tun == 1;
 R = ROISCAT(cst,:);
+
 roiPropHistogram(R, {'sfPeak','oriest'},...
     'YBinEdges', [0:30:180],...    
     'EdgeAlpha',.5, 'FaceAlpha', .25)
