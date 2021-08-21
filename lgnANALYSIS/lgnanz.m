@@ -4,28 +4,30 @@ classdef lgnanz < handle
     %   processing pipeline (after imaging, alignment, segmentation,
     %   merging and signal pulling) for the LGN tuning bias project
     
-    
+
+    %% PREPARE DATA FILES
     properties (Constant)
         path_raw_data       = lgnanz.get_path_raw_data
         uif_tbl_base        = lgnanz.get_uif_table_base   
         all_available_uif  = lgnanz.uif_tbl_base.uif
     end
     
-    properties     
-        roi_stack      
-        roi_stack_info 
-        roi_stack_uif_list 
-        
-        dist_stack
-        ranksum_stack
-        lmfit_stack
-    end
-    
     methods (Static)
-        %% PREPARE DATA FILES
+       %% - - - Locate Data Storage Folder
+        function path_raw_data = get_path_raw_data() 
+            if ismac && strcmp(getenv('LOGNAME'), 'luis')
+                path_raw_data = '/Users/luis/Box/boxPHD/Toolbox/2pdata/';
+            elseif ispc && strcmp(getenv('username'), 'Luis')
+                path_raw_data = 'C:\Users\Luis\Box Sync\boxEXPER\Toolbox\2pdata\';
+            elseif ispc && strcmp(getenv('username'), 'dario')
+                path_raw_data = 'C:\2pdata\';
+            else
+                error('unknown computer')
+            end         
+        end 
+        
+        %% - - - Generate a table of base file names for each imaging sessions 
         function uif_tbl_base = get_uif_table_base()
-            %% - - - Generate a table of base file names for each imaging sessions 
-            
             % rows correspond to unique imaging field
             % variables...
             %   mouse_id: id of the mouse
@@ -36,23 +38,22 @@ classdef lgnanz < handle
             %       correspond to imaging data under bar/hough stimulation
             %       used to measure retinotopy
 
-            uif_1 = table(1, {'lgn02'}, {'lgn02_000_004'}, {'lgn02_000_003'});
-            uif_2 = table(2, {'lgn02'}, {'lgn02_001_000'}, {'lgn02_001_001'});
-            uif_3 = table(3, {'lgn02'}, {'lgn02_002_000'}, {'lgn02_002_002'});
-            uif_4 = table(4, {'lgn02'}, {'lgn02_003_000'}, {'lgn02_003_001'});
+%             uif_1 = table(1, {'lgn02'}, {'lgn02_000_004'}, {'lgn02_000_003'});
+            uif_1 = table(1, {'lgn02'}, {'lgn02_001_000'}, {'lgn02_001_001'});
+            uif_2 = table(2, {'lgn02'}, {'lgn02_002_000'}, {'lgn02_002_002'});
+            uif_3 = table(3, {'lgn02'}, {'lgn02_003_000'}, {'lgn02_003_001'});
 
 
-            uif_5 = table(5, {'lgn03'}, {'lgn03_001_001'}, {'lgn03_001_000'});
-            uif_6 = table(6, {'lgn03'}, {'lgn03_001_003'}, {'lgn03_001_002'});
-            uif_7 = table(7, {'lgn03'}, {'lgn03_002_001'}, {'lgn03_002_000'});
+            uif_4 = table(4, {'lgn03'}, {'lgn03_001_001'}, {'lgn03_001_000'});
+            uif_5 = table(5, {'lgn03'}, {'lgn03_001_003'}, {'lgn03_001_002'});
+            uif_6 = table(6, {'lgn03'}, {'lgn03_002_001'}, {'lgn03_002_000'});
 
 
-            uif_8 = table(8, {'lgn04'}, {'lgn04_002_000'}, {'lgn04_002_003'});
+            uif_7 = table(7, {'lgn04'}, {'lgn04_002_000'}, {'lgn04_002_003'});
             
-            uif_9 = table(9, {'lgn05'}, {'lgn05_001_001'}, {'lgn05_001_000'});
-            uif_10 = table(10, {'lgn05'}, {'lgn05_008_001'}, {'lgn05_008_000'});
-            uif_11 = table(11, {'lgn05'}, {'lgn05_011_000'}, {'lgn05_011_001'});
-
+            uif_8 = table(8, {'lgn05'}, {'lgn05_001_001'}, {'lgn05_001_000'});
+            uif_9 = table(9, {'lgn05'}, {'lgn05_008_001'}, {'lgn05_008_000'});
+            uif_10 = table(10, {'lgn05'}, {'lgn05_011_000'}, {'lgn05_011_001'});
 
             uif_tbl_base = [...
                 uif_1;...
@@ -64,32 +65,26 @@ classdef lgnanz < handle
                 uif_7;...
                 uif_8;...
                 uif_9;...
-                uif_10;...
-                uif_11];          
+                uif_10]   ;      
             
             uif_tbl_base.Properties.VariableNames = {'uif', 'mouse_id', 'fname_base_ret', 'fname_base_orisf'};        
         end
-            
-        function path_raw_data = get_path_raw_data() 
-            %% - - - Locate Data Storage Folder 
-            if ismac && strcmp(getenv('LOGNAME'), 'luis')
-                path_raw_data = '/Users/luis/Box/boxPHD/Toolbox/2pdata/';
-            elseif ispc && strcmp(getenv('username'), 'Luis')
-                path_raw_data = 'C:\Users\Luis\Box Sync\boxEXPER\Toolbox\2pdata\';
-            elseif ispc && strcmp(getenv('username'), 'dario')
-                path_raw_data = 'C:\2pdata\';
-            else
-                error('unknown computer')
-            end         
-        end 
+           
+    end
+    
+    %% GENERATE DATA TABLES
+    properties     
+        roi_stack      
+        roi_stack_info 
+        roi_stack_uif_list 
+        
+        dist_stack
+        dist_stack_uif_list
     end
     
     methods 
-        %% GENERATE TABLES
-        
+        %% - - - For each imaging field, generate an roi table. and stack them together. 
         function [roi_stack_new, roi_stack_info_new] = get_roi_tables(obj, uif_list)
-            %% - - - For each imaging field, generate an roi table. Then stack them. 
-            
             arguments
                 obj
                 uif_list = obj.all_available_uif % default run through all available imaging fields
@@ -106,7 +101,7 @@ classdef lgnanz < handle
             
             roi_stack_new = [];
             roi_stack_info_new = [];
-            for uif = uif_list
+            for uif = uif_list(:)'
                 [roi_tbl_ith, uif_info_ith] = get_one_roi_table(uif) ;              
                 roi_stack_new                   = [roi_stack_new; roi_tbl_ith];   
                 roi_stack_info_new              = [roi_stack_info_new;  uif_info_ith];
@@ -115,8 +110,7 @@ classdef lgnanz < handle
             obj.roi_stack           = [table((1:height(roi_stack_new))', 'VariableNames', {'masterEntry'} ), roi_stack_new];
             obj.roi_stack_info      = roi_stack_info_new;
             obj.roi_stack_uif_list  = uif_list;
-
-             
+            
             function [roi_tbl, imaging_field_info] = get_one_roi_table(uif)
                 % - - - run
                 uif_idx             = find(lgnanz.uif_tbl_base.uif == uif);
@@ -190,9 +184,9 @@ classdef lgnanz < handle
 
 
 
-                % Match rois in this population
+                % MATCH rois in this population
                 MTC         = sbxmatchfields([ret_fname_base, '_rigid'], [tun_fname_base,'_rigid'],.2);
-
+                
                 % Create data table for the population of rois
                 S         = struct2table(ret_kernels);
                 S         = S(:,{'kern','kurtmax', 'sig', 'xy'});
@@ -204,7 +198,7 @@ classdef lgnanz < handle
                 T.Properties.VariableNames = {'kern_tun', 'signif_tun', 'sig_tun', 'oricurve', 'oriest', 'sfcurve', 'osi', 'sfPeak',  'segment_xy_tun', 'segment_area_tun'};
 
 
-                % Create Table of ROIS that ONLYL have Retinotpic Kernels
+                % Create Table of ROIS that ONLY have Retinotpic Kernels
                 % (are missing tuning kernels)
                 rois_haveRetData    = array2table(MTC.AnotB', 'variablenames', {'roi_ID_Ret'});
                 num_haveRetData     = height(rois_haveRetData);   
@@ -236,8 +230,8 @@ classdef lgnanz < handle
                 rois_haveTunData    = array2table(MTC.match(:,2), 'variablenames', {'roi_ID_Tun'});
                 num_haveRetData     = height(rois_haveRetData);         
                 num_haveTunData     = height(rois_haveTunData);         
-                hasRetData         = table(true(num_haveRetData ,1), 'variablenames', {'hasRetData'});
-                hasTunData         = table(true(num_haveTunData ,1), 'variablenames', {'hasTunData'});
+                hasRetData          = table(true(num_haveRetData ,1), 'variablenames', {'hasRetData'});
+                hasTunData          = table(true(num_haveTunData ,1), 'variablenames', {'hasTunData'});
                 K_haveRetAndTuneData       = [hasRetData, hasTunData, rois_haveRetData, rois_haveTunData,...
                                             [[S(MTC.match(:,1),:) T(MTC.match(:,2),:)]]];   
 
@@ -249,16 +243,16 @@ classdef lgnanz < handle
 
 
                 roi_tbl     = [entryNumber, mse, uniqImFieldNum, roi_tbl] ;
-
-            %    Create Imaging Field
+                
+                % Create Table of Rois From this imaging field 
                 imaging_field_info = table({mouse},  uif,  {fname_base_ret},    {fname_base_orisf},...
-                                        ret_has_quad_data,  ret_quad,  tun_has_quad_data, tun_quad,...
-                                        {ret_segment_mask}, {tun_segment_mask}, {ret_align_image},{tun_align_image}, ...
+                    ret_has_quad_data,  ret_quad,  tun_has_quad_data, tun_quad,...
+                    {ret_segment_mask}, {tun_segment_mask}, {ret_align_image},{tun_align_image}, ...
                     'variablenames',{'mouseName', 'uniqImFieldNum', 'unit_exp_hough','unit_exp_orisf',...
-                                    'hasQuadData_Ret', 'hough_quad',   'hasQuadData_Orisf', 'orisf_quad',...
-                                    'hough_segMask', 'orisf_segMask', 'hough_alignImage', 'orisf_alignImage'});
-
-                                
+                    'hasQuadData_Ret', 'hough_quad',   'hasQuadData_Orisf', 'orisf_quad',...
+                    'hough_segMask', 'orisf_segMask', 'hough_alignImage', 'orisf_alignImage'});
+                
+                                  
                 % For making empty table                
                 function T_empty = make_empty_table(table2rep, heightOfTable)
                     for i = 1:size(table2rep,2)
@@ -277,11 +271,9 @@ classdef lgnanz < handle
                 end    
             end            
         end
-        
              
+        %% - - - For each imaging field, generate a distance table. and stack together. 
         function dist_stack = get_distance_table(obj,options)
-            %% - - - For each imaging field, generate a distance table. Then stack them. 
-    
             arguments
                 obj
                 options.uif_list = obj.roi_stack_uif_list % default run all imaging fields with an roi table 
@@ -291,30 +283,27 @@ classdef lgnanz < handle
             for uif_val = options.uif_list
                 r = obj.roi_stack(obj.roi_stack.uniqImFieldNum == uif_val,:);
                 mouse_id = r.mouse{1};
-                [distances, dist_selection] = get_one_dist_table(r,mouse_id,uif_val);  
+                [distances] = get_one_dist_table(r,mouse_id,uif_val);  
                 dist_stack = [dist_stack; distances];        
             end
 
-%              obj.dist_stack = [table((1:height(dist_stack))', 'VariableNames', {'masterEntry'} ), dist_stack];   
             
-            obj.dist_stack = dist_stack;
+            obj.dist_stack          = dist_stack;
             
-            function [D, roiConstraints] = get_one_dist_table(roi_table_from_one_uif, mouse_id, uif_id)
+            % bad rois from imaging fields are tossed when creating distance table,
+            % so tables cannot be created for some imaging fields. so only
+            % note those that are left
+            obj.dist_stack_uif_list = unique(dist_stack.uniqImFieldNum); 
+            
+            function D = get_one_dist_table(roi_table_from_one_uif, mouse_id, uif_id)
 
                 isInUpperQuart = @(x) x(:)>prctile(x(:), 75);
                 isInLowerQuart = @(x) x(:)<prctile(x(:), 25);
                 isInMidFifty  = @(x) x(:)>prctile(x(:), 25) & x(:)<prctile(x(:), 75);
-
-                % SELECT ROIS FOR DISTANCE TABLE 
-                % Must have tuning and ret data, and tuning and ret kernels must be significant
-                roiConstraints = roi_table_from_one_uif.hasRetData &...
-                    roi_table_from_one_uif.hasTunData &...
-                    roi_table_from_one_uif.kurt_ret>5 &...
-                    roi_table_from_one_uif.signif_tun;
                 
-          
-
-                R = roi_table_from_one_uif(roiConstraints,:);
+                % Lets Filter Out Bad Rois
+                roi_requirements = roi_tbl.kurt_ret>13 & roi_tbl.signif_tun;
+                R                = roi_table_from_one_uif(roi_requirements,:);
 
                 % Compute retinotopic Overlap/similarity
                 dRetKern_c2cDist        = droi(R.kern_ret, 'norm_dRfCenters');   % Find Retinotopy Kernel Similirity
@@ -366,11 +355,10 @@ classdef lgnanz < handle
 
                 % Create Table
                 mouse       = repmat({mouse_id}, numPairs ,1);
-                uif         = repmat(uif_id, numPairs ,1);
+                uniqImFieldNum         = repmat(uif_id, numPairs ,1);
                 
                 
-                D = table(mouse, uif, pair_roiDistMatIdx, pair_roiOrisfId, pair_roiHoughId,...
-                                dRetKern_c2cDist,...
+                D = table(mouse, uniqImFieldNum, pair_roiDistMatIdx, pair_roiOrisfId, pair_roiHoughId,... dRetKern_c2cDist,...
                                 dRetKern_corr, dRetKern_corrStrong, dRetKern_corrWeak,...
                                 dRetKern_Overlap, dRetKern_OverlapFiftyPrc, dRetKern_OverlapYes, dRetKern_OverlapNo,...
                                 dTunKern_cos, dTunKern_corr,...
@@ -380,43 +368,24 @@ classdef lgnanz < handle
                                 dOriResp_corr, dOriResp_corrStrong, dOriResp_corrWeak,...
                                 dOriEst,    dOriEst_Same ,  dOriEst_Different,...
                                 dSegRoi);          
-                
-                            
-                
-                % GENERATE TABLE OLD TABLE WITH ENTRY'S...
-                % Get Roi Pairing Info
-%                 [~, ii, jj]         = droi(R.sfPeak,'absdiff'); % RetrunedsPair Index
-%                 pair_roiMasterEntry = [R.masterEntry(ii), R.masterEntry(jj)];
-%                 pair_roiUifEntry    = [R.entryNumber(ii), R.entryNumber(jj)];
-%                 pair_roiDistMatIdx  = [ii,jj];
-%                 pair_roiOrisfId     = [R.roi_ID_Tun(ii), R.roi_ID_Tun(jj)];
-%                 pair_roiHoughId     = [R.roi_ID_Ret(ii), R.roi_ID_Ret(jj)];        
-%                 numPairs            = size(pair_roiDistMatIdx,1);
-% 
-%                 % Create Table
-%                 mouse       = repmat({mouse_id}, numPairs ,1);
-%                 uif         = repmat(uif_id, numPairs ,1);
-% %                 uifEntry    = (1:numPairs)';
-%                 
-%                 
-%                 D = table(uifEntry, mouse, pair_roiMasterEntry, uif, pair_roiUifEntry, pair_roiDistMatIdx, pair_roiOrisfId, pair_roiHoughId,...
-%                                 dRetKern_c2cDist,...
-%                                 dRetKern_corr, dRetKern_corrStrong, dRetKern_corrWeak,...
-%                                 dRetKern_Overlap, dRetKern_OverlapFiftyPrc, dRetKern_OverlapYes, dRetKern_OverlapNo,...
-%                                 dTunKern_cos, dTunKern_corr,...
-%                                 dSfResp,...
-%                                 dLogSfEst, dLogSfEst_lessThanHalfOct, dLogSfEst_lessThanOneOct , dLogSfEst_lessThanTwoOct ,dLogSfEst_lessThanThreeOct,dLogSfEst_AnyDiff,...
-%                                            dLogSfEst_moreThanHalfOct, dLogSfEst_moreThanOneOct, dLogSfEst_moreThanTwoOct, dLogSfEst_moreThanThreeOct,...
-%                                 dOriResp_corr, dOriResp_corrStrong, dOriResp_corrWeak,...
-%                                 dOriEst,    dOriEst_Same ,  dOriEst_Different,...
-%                                 dSegRoi);          
+                        
                 
             end
         end
         
-        %% ANALYSIS
+    end
+    
+    %% ANALYSIS    
+    properties
+        ranksum_stack
+        lmfit_stack
+        
+    end
+    
+    methods
+        %% - - - RUN A RANK SUM TEST
         function [rnkTest, binCuttoffs, binMedians] = test_and_plot_ranksum(obj, uif, dY_name, dX_name, options)
-            %% - - - Run the rank sum tests
+            
             arguments
                 obj
                 uif                     
@@ -515,9 +484,8 @@ classdef lgnanz < handle
             figure(gcf)
         end
             
-            
+        %% - - - Regress receptive field overlap on tuning similarity
         function P = fit_plot_lm(obj, uif, dY_name, dX_name, binary_var_names, options)
-            %% - - - Perform regression and plot 
              arguments
                 obj
                 uif
@@ -527,7 +495,6 @@ classdef lgnanz < handle
                 options.axis_handle         = nexttile
              end                
              
-            % -----------
             % INITIALIZE
             % Get the distance data table of all imaging fields
             imfield_idx =  ismember(obj.dist_stack.uif, uif);            
@@ -535,8 +502,7 @@ classdef lgnanz < handle
             dY          = d{:, dY_name};
             dX          = d{:, dX_name};            
 
-            % Stop exectution if imaging fields ids do not exist or if imaging fields 
-            % do not have enough pairs of rois to analyze
+            % Stop exectution if imaging fields ids do not exist 
             cla(options.axis_handle)
             if ~all(ismember(uif, obj.dist_stack.uif))
                 text(options.axis_handle, .5,.5, sprintf('Distance table for one of these imaging fields has not been created'),...
@@ -546,7 +512,7 @@ classdef lgnanz < handle
                 return
             end
 
-
+            % Stop exectution  if imaging fields do not have enough pairs of rois to analyze
             if height(d) < 2
                 text(options.axis_handle, .5,.5, sprintf('One of these imaging fields does not have enough roi pairs to analyze'),...
                 'units', 'normalized', 'horizontalalignment', 'center', 'fontsize', 8) 
@@ -554,10 +520,8 @@ classdef lgnanz < handle
                 set(gca,'color','none')
                 return
             end     
-            % -----------
 
-            % -----------
-            % Fit Model
+            % Fit Model 
             model_fit   = fitlm(dX, dY, 'ResponseVar', dY_name, 'PredictorVars', dX_name );
 
             beta       = model_fit.Coefficients.Estimate(2);
@@ -565,13 +529,15 @@ classdef lgnanz < handle
             r           = sign(beta)*sqrt(model_fit.Rsquared.Ordinary);
             n_pairs     = model_fit.NumObservations;
 
-           % Plot Model
+           % Plot Model Fit
             axis(options.axis_handle);
-            P  = model_fit.plotAdded; 
-            P(1).Marker    = '.';
-            P(1).MarkerSize= 8;                
+            P               = model_fit.plotAdded; 
+            P(1).Marker     = '.';
+            P(1).MarkerSize = 8;        
+            
             title(sprintf('r=%.02f | b=%.02f | p=%.01d\nn=%d', r, beta, p_val, n_pairs),...
                 'fontweight', 'normal', 'fontsize', 8, 'BackgroundColor', [0,0,0, .1])
+            
             text(.1, .8, ['fields: ', sprintf('%d ', uif)],...
                 'Units', 'normalized', 'BackgroundColor', [0,0,0, .1])
 
@@ -580,7 +546,7 @@ classdef lgnanz < handle
             axis square;   
             set(gca,'color','none', 'Box', 'off')
 
-            % Show the condition of each data point
+            % Show the condition the pair of boutons
             dC0 =  logical(d{:,binary_var_names{1}});
             dC1 =  logical(d{:,binary_var_names{2}});
 
@@ -593,35 +559,32 @@ classdef lgnanz < handle
 
             plot(options.axis_handle, dX_given_dC0, dY_given_dC0, 'bo')
             plot(options.axis_handle, dX_given_dC1, dY_given_dC1, 'go')
+            legend(binary_var_names)
 
             drawnow;
             figure(gcf)
         end
         
-        function plot_univar_hist(obj, uif, dist_var_name, options)
-            %% - - - Plot Histogram of Distance Variable
+ 
+    end
+    
+    methods (Static)
+  %% - - - Plot Histogram 
+        function plot_univar_hist(data_table, variable_name, options)
             arguments
-                obj
-                uif             = obj.roi_stack_uif_list(1);
-                dist_var_name   = 'dTunKern_corr'
-                options.axis_handle = nexttile
+                data_table           
+                variable_name           = 'dTunKern_corr'
+                options.axis_handle     = nexttile
             end
+            
+            X   = data_table{:, variable_name};
+            uifs_in_data_table = unique(data_table.uniqImFieldNum);
+                    
+            cla(options.axis_handle) 
 
-
-            D = obj.dist_stack{obj.dist_stack.uif == uif, dist_var_name};
-            mouse_id = unique(obj.dist_stack{obj.dist_stack.uif == uif, 'mouse'});
-
-            cla(options.axis_handle)                
-            if ismember(obj.dist_stack.uif, uif)
-                text(options.axis_handle, .5,.5, sprintf('Distance table for imaging field has not been created'),...
-                'units', 'normalized', 'horizontalalignment', 'center', 'fontsize', 8) 
-                axis off square
-                set(gca,'color','none') 
-                return
-            end
-
-            if height(D) < 2
-                text(options.axis_handle, .5,.5, sprintf('Imaging field does not have enough pairs of rois'),...
+            % Stop exectution if imaging fields do not have enough rois (or pairs of rois) to analyze            
+            if height(X) < 2
+                text(options.axis_handle, .5,.5, sprintf('Imaging field does not have rois'),...
                 'units', 'normalized', 'horizontalalignment', 'center', 'fontsize', 8) 
                 axis off square
                 set(gca,'color','none')
@@ -629,22 +592,23 @@ classdef lgnanz < handle
             end        
 
 
-            number_of_pairs     = numel(D);
-            mean_of_variable    = mean(D);
+            
+            number_of_units     = numel(X);
+            mean_of_variable    = mean(X);
 
-            H   = histogram(options.axis_handle, D); 
-            xlabel(dist_var_name, 'Interpreter', 'none')
+            histogram(options.axis_handle, X); 
+            xlabel(variable_name, 'Interpreter', 'none')
             legend off;  
             axis square;   
             line([mean_of_variable mean_of_variable], ylim)                
             set(gca,'color','none', 'Box', 'off')
-            title(sprintf('number of pairs: %d', number_of_pairs), 'fontweight', 'normal', 'fontsize', 8);
-            text(.1,.9, sprintf('mouse: %s| field: %d', mouse_id{:}, uif), 'Units', 'normalized')
+            title(sprintf('N: %d', number_of_units), 'fontsize', 10);
+            text(.1,.9, ['imaging fields: ' sprintf('%d ', uifs_in_data_table)], 'Units', 'normalized')
+            
 
-        end
-
-
-    end       
+        end        
+        
+    end
 
 
 
