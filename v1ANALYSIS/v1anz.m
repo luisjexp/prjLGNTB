@@ -15,6 +15,10 @@ classdef v1anz < handle
         roi_stack_uif_list 
         dist_stack 
         dist_stack_uif_list
+        dist_stack_w_both_subreg
+        dist_stack_w_both_subreg_uif_list
+        
+        
     end 
     
     methods 
@@ -43,6 +47,7 @@ classdef v1anz < handle
           
   
         %% - - - Generate a distance table from each imaging field, and stack. 
+        %% - - - NOTE: double check if pdist is actially performing proper correlation
         function dist_stack = get_distance_table(obj,roi_stack_uif_list)
             arguments
                 obj
@@ -62,36 +67,48 @@ classdef v1anz < handle
             % bad rois from imaging fields may* be tossed when creating distance table,
             % so tables cannot be created for some imaging fields. therefore keep track of those that
             % are left
-            obj.dist_stack_uif_list = unique(dist_stack.uniqImFieldNum); 
+            
+            obj.dist_stack_uif_list = unique(dist_stack.uniqImFieldNum);
+            
             
             function D = get_one_dist_table(roi_table_from_one_uif, mouse_id, uif_id)
                 R = roi_table_from_one_uif;
                 % Compute retinotopic Overlap/similarity
                 dON_corr    = droi(R.onSubfield, 'kerncorr');   
                 dOFF_corr   = droi(R.offSubfield, 'kerncorr'); 
-                
+
                 % Compute Tuning Similarity Measures
-                dTunKern_corr           = droi(R.tuningKernel, 'kerncorr'); % Tuning Kernel  Similirity
+                dTunKern_corr   = droi(R.tuningKernel, 'kerncorr'); % Tuning Kernel  Similirity
                 [~, ii, jj] = droi(R.tuningKernel, 'cosangle' );% Tuning Kernel  cosign angle
 
-                % GENERATE TABLE
+                % Generate table...
                 % Get Roi Pairing Info
                 pair_roiDistMatIdx  = [ii,jj];   
                 numPairs            = size(pair_roiDistMatIdx,1);
-
+                
                 % Create Table
                 mouse       = repmat({mouse_id}, numPairs ,1);
                 uniqImFieldNum         = repmat(uif_id, numPairs ,1);
                 
-                
                 D = table(mouse, uniqImFieldNum, pair_roiDistMatIdx,... 
                     dON_corr, dOFF_corr,...
-                    dTunKern_corr);          
+                    dTunKern_corr);  
+                
+                %% Create a distance table but only for pairs with both
+                % On AND off subregions
+                
+                function d = compute_dist(R)
+
+                    
+                   
+                    
+                end
 
                 
             end
         end
     end
+
     
     
     
@@ -108,22 +125,22 @@ classdef v1anz < handle
             arguments
                 obj
                 uif                     
-                dY_name                 = 'dTunKern_corr'
-                dX_name                 = 'dRetKern_corr'
+                dY_name                 = ''
+                dX_name                 = ''
                 options.tail            = 'both'
-                options.axis_handle     
+                options.axis_handle     = nexttile
             end            
             cla(options.axis_handle)                
    
             % -----------
             % INITIALIZE
             % Get the distance data table of all imaging fields
-            imfield_idx =  ismember(obj.dist_stack.uif, uif);            
+            imfield_idx =  ismember(obj.dist_stack.uniqImFieldNum, uif);            
             d           = obj.dist_stack(imfield_idx,:);
               
             % Stop exectution if imaging fields ids do not exist or if imaging fields 
             % do not have enough pairs of rois to analyze
-            if ~all(ismember(uif, obj.dist_stack.uif))
+            if ~all(ismember(uif, obj.dist_stack.uniqImFieldNum))
                 text(options.axis_handle, .5,.5, sprintf('Distance table for one of these imaging fields has not been created'),...
                 'units', 'normalized', 'horizontalalignment', 'center', 'fontsize', 8) 
                 axis off square
@@ -252,14 +269,14 @@ classdef v1anz < handle
            % Plot Model Fit
             axis(options.axis_handle);
             P               = lm.plotAdded; 
-%             P(1).Marker     = '.';
-%             P(1).MarkerSize = 8;        
+            P(1).Marker     = '.';
+            P(1).MarkerSize = 8;        
             
             title(sprintf('r=%.02f | b=%.02f | p=%.01d\nn=%d', r, beta, p_val, n_pairs),...
-                'fontweight', 'normal', 'fontsize', 8)%, 'BackgroundColor', [0,0,0, .1])
+                'fontweight', 'normal', 'fontsize', 8, 'BackgroundColor', [0,0,0, .1])
             
             text(.1, .8, ['fields: ', sprintf('%d ', uif_list)],...
-                'Units', 'normalized')%, 'BackgroundColor', [0,0,0, .1])
+                'Units', 'normalized',  'BackgroundColor', [0,0,0, .1])
 
             hold on;
             legend off;  
