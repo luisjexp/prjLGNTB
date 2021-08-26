@@ -5,7 +5,7 @@ function [D, ii, jj] = droi(X, distanceMeasure)
             case 'overlap'
                 D = pixOverlap(X);
             case 'cosangle'
-                D = cosangle(X);
+                [D, ii, jj] = cosangle(X);
             case 'kerncorr'
                 stretchKernel   = @(kernelCellArray) cellfun(@(k) k(:), kernelCellArray, 'UniformOutput' , false);
                 stretchedRetKernels = stretchKernel(X);

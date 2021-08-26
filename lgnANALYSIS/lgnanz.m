@@ -1,4 +1,4 @@
-classdef lgnanz < handle
+classdef lgnanz < tbanz
     % LGN Local Tuning Biases Analysis
     %   This class performs the secondary and final component of the
     %   processing pipeline (after imaging, alignment, segmentation,
@@ -7,9 +7,9 @@ classdef lgnanz < handle
 
     %% PREPARE DATA FILES
     properties (Constant)
-        path_raw_data       = lgnanz.get_path_raw_data
+%         path_raw_data       = lgnanz.get_path_raw_data
         uif_tbl_base        = lgnanz.get_uif_table_base   
-        all_available_uif  = lgnanz.uif_tbl_base.uif
+        all_available_uif   = lgnanz.uif_tbl_base.uif
     end
     
     methods (Static)
@@ -280,7 +280,7 @@ classdef lgnanz < handle
             end
             dist_stack  = [];
             
-            for uif_val = options.uif_list
+            for uif_val = options.uif_list(:)'
                 r = obj.roi_stack(obj.roi_stack.uniqImFieldNum == uif_val,:);
                 mouse_id = r.mouse{1};
                 [distances] = get_one_dist_table(r,mouse_id,uif_val);  
@@ -302,7 +302,7 @@ classdef lgnanz < handle
                 isInMidFifty  = @(x) x(:)>prctile(x(:), 25) & x(:)<prctile(x(:), 75);
                 
                 % Lets Filter Out Bad Rois
-                roi_requirements = roi_tbl.kurt_ret>13 & roi_tbl.signif_tun;
+                roi_requirements = roi_table_from_one_uif.kurt_ret>13 & roi_table_from_one_uif.signif_tun;
                 R                = roi_table_from_one_uif(roi_requirements,:);
 
                 % Compute retinotopic Overlap/similarity
@@ -485,26 +485,27 @@ classdef lgnanz < handle
         end
             
         %% - - - Regress receptive field overlap on tuning similarity
-        function P = fit_plot_lm(obj, uif, dY_name, dX_name, binary_var_names, options)
+        function P = fit_plot_lm(obj, uif_list, dY_name, dX_name, options)
              arguments
                 obj
-                uif
+                uif_list
                 dY_name                     = 'dTunKern_corr'
                 dX_name                     = 'dRetKern_corr'
-                binary_var_names            = {'dLogSfEst_lessThanOneOct', 'dLogSfEst_moreThanOneOct'}
+                options.binary_var_names    = ''
                 options.axis_handle         = nexttile
              end                
              
-            % INITIALIZE
-            % Get the distance data table of all imaging fields
-            imfield_idx =  ismember(obj.dist_stack.uif, uif);            
+             
+            % Get the distance data table of all imaging fields specified
+            uifs_available = obj.dist_stack.uniqImFieldNum;
+            imfield_idx =  ismember(uifs_available, uif_list);            
             d           = obj.dist_stack(imfield_idx,:);
             dY          = d{:, dY_name};
             dX          = d{:, dX_name};            
 
-            % Stop exectution if imaging fields ids do not exist 
+            % Stop exectution if imaging field ids do not exist 
             cla(options.axis_handle)
-            if ~all(ismember(uif, obj.dist_stack.uif))
+            if ~all(ismember(uif_list, uifs_available))
                 text(options.axis_handle, .5,.5, sprintf('Distance table for one of these imaging fields has not been created'),...
                 'units', 'normalized', 'horizontalalignment', 'center', 'fontsize', 8) 
                 axis off square
@@ -512,7 +513,7 @@ classdef lgnanz < handle
                 return
             end
 
-            % Stop exectution  if imaging fields do not have enough pairs of rois to analyze
+            % Stop exectution  if imaging fields do not have enough roi pairs to analyze
             if height(d) < 2
                 text(options.axis_handle, .5,.5, sprintf('One of these imaging fields does not have enough roi pairs to analyze'),...
                 'units', 'normalized', 'horizontalalignment', 'center', 'fontsize', 8) 
@@ -522,54 +523,56 @@ classdef lgnanz < handle
             end     
 
             % Fit Model 
-            model_fit   = fitlm(dX, dY, 'ResponseVar', dY_name, 'PredictorVars', dX_name );
+            lm   = fitlm(dX, dY, 'ResponseVar', dY_name, 'PredictorVars', dX_name );
 
-            beta       = model_fit.Coefficients.Estimate(2);
-            p_val       = model_fit.Coefficients.pValue(2);
-            r           = sign(beta)*sqrt(model_fit.Rsquared.Ordinary);
-            n_pairs     = model_fit.NumObservations;
+            beta       = lm.Coefficients.Estimate(2);
+            p_val       = lm.Coefficients.pValue(2);
+            r           = sign(beta)*sqrt(lm.Rsquared.Ordinary);
+            n_pairs     = lm.NumObservations;
 
            % Plot Model Fit
             axis(options.axis_handle);
-            P               = model_fit.plotAdded; 
+            P               = lm.plotAdded; 
             P(1).Marker     = '.';
             P(1).MarkerSize = 8;        
             
             title(sprintf('r=%.02f | b=%.02f | p=%.01d\nn=%d', r, beta, p_val, n_pairs),...
-                'fontweight', 'normal', 'fontsize', 8, 'BackgroundColor', [0,0,0, .1])
+                'fontweight', 'normal', 'fontsize', 8)%, 'BackgroundColor', [0,0,0, .1])
             
-            text(.1, .8, ['fields: ', sprintf('%d ', uif)],...
-                'Units', 'normalized', 'BackgroundColor', [0,0,0, .1])
+            text(.1, .8, ['fields: ', sprintf('%d ', uif_list)],...
+                'Units', 'normalized')%, 'BackgroundColor', [0,0,0, .1])
 
             hold on;
             legend off;  
             axis square;   
             set(gca,'color','none', 'Box', 'off')
 
+            
             % Show the condition the pair of boutons
-            dC0 =  logical(d{:,binary_var_names{1}});
-            dC1 =  logical(d{:,binary_var_names{2}});
+            if ~isempty(options.binary_var_names)
+                dC0 =  logical(d{:,options.binary_var_names{1}});
+                dC1 =  logical(d{:,options.binary_var_names{2}});
 
-            dX_given_dC0 = dX(dC0,:);
-            dY_given_dC0 = dY(dC0,:);
+                dX_given_dC0 = dX(dC0,:);
+                dY_given_dC0 = dY(dC0,:);
 
-            dX_given_dC1 = dX(dC1,:);
-            dY_given_dC1 = dY(dC1,:);                
+                dX_given_dC1 = dX(dC1,:);
+                dY_given_dC1 = dY(dC1,:);                
 
 
-            plot(options.axis_handle, dX_given_dC0, dY_given_dC0, 'bo')
-            plot(options.axis_handle, dX_given_dC1, dY_given_dC1, 'go')
-            legend(binary_var_names)
+                plot(options.axis_handle, dX_given_dC0, dY_given_dC0, 'bo')
+                plot(options.axis_handle, dX_given_dC1, dY_given_dC1, 'go')
+                legend(options.binary_var_names)
+            end
 
             drawnow;
             figure(gcf)
         end
         
- 
     end
     
     methods (Static)
-  %% - - - Plot Histogram 
+        %% - - - Plot Histogram 
         function plot_univar_hist(data_table, variable_name, options)
             arguments
                 data_table           
