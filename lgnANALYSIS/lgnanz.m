@@ -1,4 +1,4 @@
-classdef lgnanz < tbanz
+classdef lgnanz < handle
     % LGN Local Tuning Biases Analysis
     %   This class performs the secondary and final component of the
     %   processing pipeline (after imaging, alignment, segmentation,
@@ -7,7 +7,7 @@ classdef lgnanz < tbanz
 
     %% PREPARE DATA FILES
     properties (Constant)
-%         path_raw_data       = lgnanz.get_path_raw_data
+         path_raw_data      = lgnanz.get_path_raw_data
         uif_tbl_base        = lgnanz.get_uif_table_base   
         all_available_uif   = lgnanz.uif_tbl_base.uif
     end
@@ -38,34 +38,33 @@ classdef lgnanz < tbanz
             %       correspond to imaging data under bar/hough stimulation
             %       used to measure retinotopy
 
-%             uif_1 = table(1, {'lgn02'}, {'lgn02_000_004'}, {'lgn02_000_003'});
-            uif_1 = table(1, {'lgn02'}, {'lgn02_001_000'}, {'lgn02_001_001'});
-            uif_2 = table(2, {'lgn02'}, {'lgn02_002_000'}, {'lgn02_002_002'});
-            uif_3 = table(3, {'lgn02'}, {'lgn02_003_000'}, {'lgn02_003_001'});
-
-
-            uif_4 = table(4, {'lgn03'}, {'lgn03_001_001'}, {'lgn03_001_000'});
-            uif_5 = table(5, {'lgn03'}, {'lgn03_001_003'}, {'lgn03_001_002'});
-            uif_6 = table(6, {'lgn03'}, {'lgn03_002_001'}, {'lgn03_002_000'});
-
-
-            uif_7 = table(7, {'lgn04'}, {'lgn04_002_000'}, {'lgn04_002_003'});
-            
-            uif_8 = table(8, {'lgn05'}, {'lgn05_001_001'}, {'lgn05_001_000'});
-            uif_9 = table(9, {'lgn05'}, {'lgn05_008_001'}, {'lgn05_008_000'});
-            uif_10 = table(10, {'lgn05'}, {'lgn05_011_000'}, {'lgn05_011_001'});
+%             table(1, {'lgn02'}, {'lgn02_000_004'}, {'lgn02_000_003'}); % missing data
+%             table(1, {'lgn02'}, {'lgn02_001_000'}, {'lgn02_001_001'}); 
+%             table(2, {'lgn02'}, {'lgn02_002_000'}, {'lgn02_002_002'});
+%             table(3, {'lgn02'}, {'lgn02_003_000'}, {'lgn02_003_001'}); % this one is messy so drop it
+% 
+%             table(4, {'lgn03'}, {'lgn03_001_001'}, {'lgn03_001_000'}); % this one is messy so drop it
+%             table(5, {'lgn03'}, {'lgn03_001_003'}, {'lgn03_001_002'}); % this one is messy so drop it
+%             table(6, {'lgn03'}, {'lgn03_002_001'}, {'lgn03_002_000'}); % this one is messy so drop it
+% 
+% 
+%             table(7, {'lgn04'}, {'lgn04_002_000'}, {'lgn04_002_003'}); % this one is messy so drop it
+%             
+%             table(8, {'lgn05'}, {'lgn05_001_001'}, {'lgn05_001_000'}); % this one is messy so drop it
+%             table(9, {'lgn05'}, {'lgn05_008_001'}, {'lgn05_008_000'}); % this one is messy so drop it
+%             table(10, {'lgn05'}, {'lgn05_011_000'}, {'lgn05_011_001'}); 
 
             uif_tbl_base = [...
-                uif_1;...
-                uif_2;...
-                uif_3;...
-                uif_4;...
-                uif_5;...
-                uif_6;...
-                uif_7;...
-                uif_8;...
-                uif_9;...
-                uif_10]   ;      
+                table(1, {'lgn02'}, {'lgn02_001_000'}, {'lgn02_001_001'});...
+                table(2, {'lgn02'}, {'lgn02_002_000'}, {'lgn02_002_002'});...
+                table(3, {'lgn03'}, {'lgn03_001_001'}, {'lgn03_001_000'});...
+%                 table(4, {'lgn03'}, {'lgn03_001_003'}, {'lgn03_001_002'});...
+%                 table(5, {'lgn03'}, {'lgn03_002_001'}, {'lgn03_002_000'});...
+%                 table(6, {'lgn04'}, {'lgn04_002_000'}, {'lgn04_002_003'});...
+%                 table(7, {'lgn05'}, {'lgn05_001_001'}, {'lgn05_001_000'});...
+%                 table(8, {'lgn05'}, {'lgn05_008_001'}, {'lgn05_008_000'});...
+%                 table(9, {'lgn05'}, {'lgn05_011_000'}, {'lgn05_011_001'});...
+                ];
             
             uif_tbl_base.Properties.VariableNames = {'uif', 'mouse_id', 'fname_base_ret', 'fname_base_orisf'};        
         end
@@ -505,17 +504,10 @@ classdef lgnanz < tbanz
 
             % Stop exectution if imaging field ids do not exist 
             cla(options.axis_handle)
-            if ~all(ismember(uif_list, uifs_available))
-                text(options.axis_handle, .5,.5, sprintf('Distance table for one of these imaging fields has not been created'),...
-                'units', 'normalized', 'horizontalalignment', 'center', 'fontsize', 8) 
-                axis off square
-                set(gca,'color','none') 
-                return
-            end
 
             % Stop exectution  if imaging fields do not have enough roi pairs to analyze
             if height(d) < 2
-                text(options.axis_handle, .5,.5, sprintf('One of these imaging fields does not have enough roi pairs to analyze'),...
+                text(options.axis_handle, .5,.5, sprintf('This imaging field does not have enough roi pairs to analyze'),...
                 'units', 'normalized', 'horizontalalignment', 'center', 'fontsize', 8) 
                 axis off square
                 set(gca,'color','none')
