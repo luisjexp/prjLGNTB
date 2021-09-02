@@ -1,6 +1,6 @@
 # LOCAL TUNING BIASES IN THE MOUSE dLGN
 
-<img src="lgnASSETS/Three mechanisms of Tuning Biases.jpg" alt="Screen Shot 2021-09-02 at 2.56.34 PM" style="zoom: 33%;" />
+<img src="lgnASSETS/Three mechanisms of Tuning Biases.jpg" alt="Screen Shot 2021-09-02 at 2.56.34 PM" style="zoom: 50%;" />
 
 ## Overview
 
