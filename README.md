@@ -9,7 +9,7 @@ Local tuning biases is a hypothesized property of populations of visual neurons 
 The aim of this project is to assess the presence of these 'local tuning biases' among populations of LGN afferents innervating  mouse V1  (the thalamic axons that relay retinal signals to the cortex) . It is an extention of study conducted by [Jimenez et al 2018](https://journals.physiology.org/doi/full/10.1152/jn.00150.2018#:~:text=Local%20tuning%20biases%20imply%20that,assumed%20by%20modular%20cortical%20organization), who found evidence of local tuning biases in mouse primary visual cortex. 
 
 
-To answer this question, we estimated the spatial receptive fields and feature tuning of populations of thalamic boutons innervating mouse V1. Then, for each pair of boutons, we determined the extent to which their receptive fields overlapped and the similarity of their tuning profiles. If LGN boutons with overlapping receptive fields show similar tuning profiles, this would suggest the presence of local tuning biases.
+To answer this question of whether tuning biases exist, one can estimate the spatial receptive fields and feature tuning of populations of thalamic boutons innervating mouse V1. Then, for each pair of boutons, determing the extent to which their receptive fields overlap and the similarity of their tuning profiles. If LGN boutons with overlapping receptive fields show similar tuning profiles, this would suggest the presence of local tuning biases.
 
 <u>This Repository</u>
 
@@ -18,6 +18,8 @@ To answer this question, we estimated the spatial receptive fields and feature t
 - The data used for this project can be found in [this folder](lgnDATA)
 - The code for the analysis was written in MATLAB, and can be found in  [this folder](lgnANALYSIS)
   - [This MATLAB script ]( lgnSUBMIT/lgnManuscript_master.pdf) will guide you through the analysis 
+
+- The project is an extention of study conducted by [Jimenez et al 2018](https://journals.physiology.org/doi/full/10.1152/jn.00150.2018#:~:text=Local%20tuning%20biases%20imply%20that,assumed%20by%20modular%20cortical%20organization)
 
 ## Methods
 
