@@ -9,7 +9,7 @@ Local tuning biases is a hypothesized property of populations of visual neurons 
 The aim of this project is to assess the presence of these 'local tuning biases' among populations of LGN afferents innervating mouse V1  (the thalamic axons that relay retinal signals to the cortex) . It is an extention of study conducted by [Jimenez et al 2018](https://journals.physiology.org/doi/full/10.1152/jn.00150.2018#:~:text=Local%20tuning%20biases%20imply%20that,assumed%20by%20modular%20cortical%20organization), who found evidence of local tuning biases in mouse primary visual cortex. 
 
 
-To answer this question of whether tuning biases exist, one can estimate the spatial receptive fields and feature tuning of populations of thalamic boutons innervating mouse V1. Then, for each pair of boutons, determing the extent to which their receptive fields overlap and the similarity of their tuning profiles. If LGN boutons with overlapping receptive fields show similar tuning profiles, this would suggest the presence of local tuning biases.
+To answer the question of whether tuning biases exist, one can estimate the spatial receptive fields and feature tuning of populations of thalamic boutons innervating mouse V1. Then, for each pair of boutons, determine the extent to which their receptive fields overlap and the similarity of their tuning profiles. If LGN boutons with overlapping receptive fields show similar tuning profiles, this would suggest the presence of local tuning biases.
 
 <u>This Repository</u>
 
@@ -35,21 +35,15 @@ We also measured the spatial receptive field maps of boutons by presenting a seq
 
 <u>Image Processing</u>
 
-After imaging a field, we manually segmented regions of interest  (ROIS) which corresponded micrometer-sized circular or elliptical boutons of dLGN axons. Then for each ROI we extracted signals by computing the mean of the calcium fluorescence within each region of interest and discounting the signals from the nearby neuropil. Spikes were then estimated via deconvolution.
+After imaging a field, we manually segmented regions of interest (ROIS) which corresponded micrometer-sized circular or elliptical boutons of dLGN axons. Then for each ROI we extracted signals by computing the mean of the calcium fluorescence within each region of interest and discounting the signals from the nearby neuropil. Spikes were then estimated via deconvolution.
 
 <u>Analysis</u>
 
-The primary goal is to determine if LGN boutons with overlapping receptive fields have similar tuning profiles. This would suggest  that neurons/units in the dLGN 'process' image regions with a similar, or biased, set of orientated filters. 
+The goal is to determine if LGN boutons with overlapping receptive fields have similar tuning profiles. This would suggest that neurons/units in the dLGN 'process' image regions with a similar, or biased, set of orientated filters. 
 
-To do test this we take each possible pair of boutons (i,j)  in an imaging field, then compute the overlap between their receptive fields, and also compute the similarity of their tuning profiles. We can define the tuning similarity of bouton pairs as the as the correlation between their joint tuning kernels. The RF overlap of bouton pairs can also be defined as the correlation coefficient between their RF maps.
+To run this test we take each possible pair of boutons (i,j) in an imaging field, then compute the overlap between their receptive fields, and also compute the similarity of their tuning profiles. We define the tuning similarity of bouton pairs as the as the correlation between their joint tuning kernels. The RF overlap of bouton pairs can also be defined as the correlation coefficient between their RF maps.
 
-Once we compute the tuning similarty and receptive field overlap of bouton pairs, we can plot the relationship between the two variables.  The plot below shows that there exists a relationship between receptive field overlap (x-axis) and tuning similarity (yaxis). Neurons with overlapping receptive fields show similar tuning profiles. T
-
- 
-
-
-
-
+Once we compute the tuning similarty and receptive field overlap of bouton pairs, we can plot the relationship between the two variables.  The plot below shows that there exists a relationship between receptive field overlap (x-axis) and tuning similarity (yaxis). Neurons with overlapping receptive fields show similar tuning profiles. 
 
 ![Results_raw](lgnASSETS/Results_raw.png)
 
