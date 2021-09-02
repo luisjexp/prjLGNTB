@@ -1,4 +1,6 @@
-# LGN TUNING BIAS CODE
+# LOCAL TUNING BIASES IN THE MOUSE dLGN
+
+<img src="lgnASSETS/Three mechanisms of Tuning Biases.jpg" alt="Screen Shot 2021-09-02 at 2.56.34 PM" style="zoom: 33%;" />
 
 ## Overview
 
@@ -42,9 +44,9 @@ Once we compute the tuning similarty and receptive field overlap of bouton pairs
 
  
 
-## <img src="file:////Users/luis/Library/Group Containers/UBF8T346G9.Office/ConnectorClipboard/image16303755459986.png" alt="img" style="zoom:33%;" />
 
 
 
 
+![Results_raw](lgnASSETS/Results_raw.png)
 
