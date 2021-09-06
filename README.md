@@ -1,10 +1,12 @@
 # LOCAL TUNING BIASES IN THE MOUSE dLGN
 
-<img src="lgnASSETS/Three mechanisms of Tuning Biases.jpg" alt="Screen Shot 2021-09-02 at 2.56.34 PM" style="zoom: 50%;" />
+<img src="lgnASSETS/Three mechanisms of Tuning Biases.jpg" alt="Screen Shot 2021-09-02 at 2.56.34 PM" style="zoom: 33%;" />
 
 ## Overview
 
-Local tuning biases is a hypothesized property of populations of visual neurons in the early visual system: Specifically, it is the notion that groups neurons/units process a given image region with a similar, or biased, set of tuned filters. This prediction is based on an intiguing mechanistic model that aims to explain the emergence of maps in primary visual cortex [see Paik and Ringach 2011](https://www.nature.com/articles/nn.2824) or, [Song et al 2020 ](https://www.cell.com/cell-reports/fulltext/S2211-1247(20)31570-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS2211124720315709%3Fshowall%3Dtrue)
+The local regions of visual space are assessed by populations of visual neurons in the early visual system. The properties of these populations of cells is not well known. A classical idea posulates that groups of cells process each image region with a diverse set of filters tuned to all possible orientations (Hubel and Weisel 1963, 1969). 
+
+A more recent, alternative idea is that groups neurons/units process a given image region with a similar, or biased, set of tuned filters ([Paik and Ringach 2011](https://www.nature.com/articles/nn.2824),  [Song et al 2020 ](https://www.cell.com/cell-reports/fulltext/S2211-1247(20)31570-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS2211124720315709%3Fshowall%3Dtrue))
 
 The aim of this project is to assess the presence of these 'local tuning biases' among populations of LGN afferents innervating mouse V1  (the thalamic axons that relay retinal signals to the cortex) . It is an extention of study conducted by [Jimenez et al 2018](https://journals.physiology.org/doi/full/10.1152/jn.00150.2018#:~:text=Local%20tuning%20biases%20imply%20that,assumed%20by%20modular%20cortical%20organization), who found evidence of local tuning biases in mouse primary visual cortex. 
 
